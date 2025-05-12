@@ -1,49 +1,59 @@
 pipeline {
     agent any
 
-    environment {
-        SONAR_TOKEN = credentials('SONAR_TOKEN') // Jenkins will inject your SonarCloud token here
-    }
-
     stages {
-        stage('Checkout') {
+        stage('Build') {
             steps {
-                git url: 'https://github.com/kgugamage/8.2CDevSecOps.git', branch: 'main'
+                echo 'Building...'
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Test') {
             steps {
-                sh 'npm install'
+                script {
+                    try {
+                        echo 'Running tests...'
+                        // simulate test command
+                        sh 'echo "test log" > test.log'
+                    } catch (err) {
+                        currentBuild.result = 'FAILURE'
+                        throw err
+                    }
+                }
+            }
+            post {
+                always {
+                    emailext (
+                        subject: "Test Stage: ${currentBuild.currentResult}",
+                        body: "The test stage has ${currentBuild.currentResult}. See attached logs.",
+                        to: "uthpalagamage165@gmail.com",
+                        attachmentsPattern: 'test.log'
+                    )
+                }
             }
         }
 
-        stage('Run Tests') {
+        stage('Security Scan') {
             steps {
-                sh 'npm test || true'
+                script {
+                    try {
+                        echo 'Running security scan...'
+                        sh 'echo "security scan log" > scan.log'
+                    } catch (err) {
+                        currentBuild.result = 'FAILURE'
+                        throw err
+                    }
+                }
             }
-        }
-
-        stage('Generate Coverage Report') {
-            steps {
-                sh 'npm run coverage || true'
-            }
-        }
-
-        stage('NPM Audit') {
-            steps {
-                sh 'npm audit --audit-level=high || true'
-            }
-        }
-
-        stage('SonarCloud Analysis') {
-            steps {
-                sh '''
-                curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-                unzip sonar-scanner.zip
-                export PATH=$PATH:$(pwd)/sonar-scanner-*/bin
-                sonar-scanner -Dsonar.login=${SONAR_TOKEN}
-                '''
+            post {
+                always {
+                    emailext (
+                        subject: "Security Scan: ${currentBuild.currentResult}",
+                        body: "The security scan has ${currentBuild.currentResult}. Logs are attached.",
+                        to: "your_email@example.com",
+                        attachmentsPattern: 'scan.log'
+                    )
+                }
             }
         }
     }
