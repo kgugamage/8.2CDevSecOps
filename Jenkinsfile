@@ -26,7 +26,7 @@ pipeline {
                     emailext (
                         subject: "Test Stage: ${currentBuild.currentResult}",
                         body: "The test stage has ${currentBuild.currentResult}. See attached logs.",
-                        to: "uthpalagamage165@gmail.com",
+                        to: "uthpalagamage166@gmail.com",
                         attachmentsPattern: 'test.log'
                     )
                 }
@@ -50,7 +50,7 @@ pipeline {
                     emailext (
                         subject: "Security Scan: ${currentBuild.currentResult}",
                         body: "The security scan has ${currentBuild.currentResult}. Logs are attached.",
-                        to: "your_email@example.com",
+                        to: "uthpalagamage166@gmail.com",
                         attachmentsPattern: 'scan.log'
                     )
                 }
