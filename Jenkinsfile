@@ -38,12 +38,21 @@ pipeline {
 
         stage('SonarCloud Analysis') {
             steps {
-                sh '''
-                curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-                unzip sonar-scanner.zip
-                export PATH=$PATH:$(pwd)/sonar-scanner-*/bin
-                sonar-scanner
-                '''
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    sh '''
+                        # Download sonar-scanner
+                        curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+
+                        # Unzip sonar-scanner
+                        unzip -q sonar-scanner.zip
+
+                        # Add the sonar-scanner binary directory to PATH
+                        export PATH=$PATH:$(pwd)/sonar-scanner-*/bin
+
+                        # Run sonar-scanner
+                        sonar-scanner
+                    '''
+                }
             }
         }
     }
